@@ -127,7 +127,9 @@ import {
   MetaMaskReduxState,
   TemporaryMessageDataType,
 } from './store';
-
+const { Web3Provider } = require('@ethersproject/providers');
+const { ethers } = require('ethers');
+const { formatUnits } = require('@ethersproject/units');
 type CustomGasSettings = {
   gas?: string;
   gasPrice?: string;
@@ -2902,6 +2904,42 @@ export function setSelectedStatus(
         resolve(true);
     });
   };
+}
+
+export function setSelectedRemoteAccount(
+  address: string,
+  name: string
+): ThunkAction<Promise<string>, MetaMaskReduxState, unknown, AnyAction>{
+  return (dispatch: MetaMaskReduxDispatch) => {
+    return new Promise((resolve, reject) => {
+        dispatch({
+          type: actionConstants.SET_SELECTED_REMOTEACCOUNT,
+          value: { address, name },
+        });
+        resolve(true);
+    });
+  };
+}
+
+export function setRemoteBalance(
+  value: string
+): ThunkAction<Promise<string>, MetaMaskReduxState, unknown, AnyAction>{
+    return (dispatch: MetaMaskReduxDispatch) => {
+      return new Promise((resolve, reject) => {
+          const web3Provider = new Web3Provider(global.ethereumProvider);
+          web3Provider.getBalance(value).then(balance => {
+            let val = balance._hex;
+            console.log('action', val);
+            dispatch({
+              type: actionConstants.SET_REMOTE_BALANCE,
+              value: { val },
+            });
+            resolve(val);
+          });
+      }).catch(error => {
+      console.error('Error:', error);
+    })
+  }
 }
 
 export function clearAccountDetails(): Action {

@@ -42,11 +42,13 @@ import {
   getHiddenAccountsList,
   getSelectedInternalAccount,
   getRemoteAccounts,
+  getSelectedStatus,
+  getSelectedRemoteAccount,
   ///: BEGIN:ONLY_INCLUDE_IF(keyring-snaps)
   getIsAddSnapAccountEnabled,
   ///: END:ONLY_INCLUDE_IF
 } from '../../../selectors';
-import { setSelectedAccount,setSelectedRemoteAccount } from '../../../store/actions';
+import { setSelectedAccount, setSelectedStatus, setSelectedRemoteAccount } from '../../../store/actions';
 import {
   MetaMetricsEventAccountType,
   MetaMetricsEventCategory,
@@ -118,6 +120,9 @@ export const AccountListMenu = ({
   const dispatch = useDispatch();
   const hiddenAddresses = useSelector(getHiddenAccountsList);
   const updatedAccountsList = useSelector(getUpdatedAndSortedAccounts);
+
+  const selectedStatus = useSelector(getSelectedStatus);
+  const selectedremoteAccount = useSelector(getSelectedRemoteAccount);
   ///: BEGIN:ONLY_INCLUDE_IF(keyring-snaps)
   const addSnapAccountEnabled = useSelector(getIsAddSnapAccountEnabled);
   ///: END:ONLY_INCLUDE_IF
@@ -428,11 +433,12 @@ export const AccountListMenu = ({
                             location: 'Main Menu',
                           },
                         });
+                        dispatch(setSelectedStatus(false));
                         dispatch(setSelectedAccount(account.address));
                       }}
                       identity={account}
                       key={account.address}
-                      selected={selectedAccount.address === account.address}
+                      selected={!selectedStatus && selectedAccount.address === account.address}
                       closeMenu={onClose}
                       connectedAvatar={connectedSite?.iconUrl}
                       connectedAvatarName={connectedSite?.name}
@@ -463,12 +469,14 @@ export const AccountListMenu = ({
                             location: 'Main Menu',
                           },
                         });
+                        dispatch(setSelectedRemoteAccount(account.address,account.name));
+                        dispatch(setSelectedStatus(true));
                         // dispatch(setSelectedAccount(account.address));
                       }}
                       accountType={true}
                       remoteidentity={account}
                       key={account.address}
-                      selected={selectedAccount.address === account.address}
+                      selected={selectedStatus && selectedremoteAccount.address === account.address}
                       closeMenu={onClose}
                       menuType={AccountListItemMenuTypes.Account}
                       currentTabOrigin={currentTabOrigin}

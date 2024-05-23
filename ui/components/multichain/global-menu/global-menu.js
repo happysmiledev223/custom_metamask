@@ -45,6 +45,8 @@ import {
 } from '../../../selectors/institutional/selectors';
 ///: END:ONLY_INCLUDE_IF
 import {
+  getSelectedStatus,
+  getSelectedRemoteAccount,
   ///: BEGIN:ONLY_INCLUDE_IF(build-mmi)
   getMetaMetricsId,
   ///: END:ONLY_INCLUDE_IF(build-mmi)
@@ -88,6 +90,11 @@ export const GlobalMenu = ({ closeMenu, anchorElement, isOpen }) => {
 
   const hasUnapprovedTransactions =
     Object.keys(unapprovedTransactons).length > 0;
+
+
+  const selectedStatus = useSelector(getSelectedStatus);
+  const selectedremoteAccount = useSelector(getSelectedRemoteAccount);
+
 
   ///: BEGIN:ONLY_INCLUDE_IF(build-mmi)
   const metaMetricsId = useSelector(getMetaMetricsId);
@@ -144,20 +151,31 @@ export const GlobalMenu = ({ closeMenu, anchorElement, isOpen }) => {
       borderStyle={BorderStyle.none}
       position={PopoverPosition.BottomEnd}
     >
-      {account && (
-        <>
-          <AccountDetailsMenuItem
-            metricsLocation={METRICS_LOCATION}
-            closeMenu={closeMenu}
-            address={account.address}
-          />
-          <ViewExplorerMenuItem
-            metricsLocation={METRICS_LOCATION}
-            closeMenu={closeMenu}
-            address={account.address}
-          />
-        </>
-      )}
+      { selectedStatus ?
+        (selectedremoteAccount && (
+          <>
+            <ViewExplorerMenuItem
+              metricsLocation={METRICS_LOCATION}
+              closeMenu={closeMenu}
+              address={selectedremoteAccount.address}
+            />
+          </>
+        )) :
+        (account && (
+          <>
+            <AccountDetailsMenuItem
+              metricsLocation={METRICS_LOCATION}
+              closeMenu={closeMenu}
+              address={account.address}
+            />
+            <ViewExplorerMenuItem
+              metricsLocation={METRICS_LOCATION}
+              closeMenu={closeMenu}
+              address={account.address}
+            />
+          </>
+        ))
+      }
       <Box
         borderColor={BorderColor.borderMuted}
         width={BlockSize.Full}

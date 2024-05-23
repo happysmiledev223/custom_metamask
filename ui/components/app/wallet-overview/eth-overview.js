@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
 import classnames from 'classnames';
@@ -35,6 +35,9 @@ import {
   getSelectedInternalAccount,
   getSelectedAccountCachedBalance,
   getSelectedStatus,
+  getRemoteBalance,
+  getSelectedRemoteAccount,
+  getTokenFromRemoteAccount,
   ///: BEGIN:ONLY_INCLUDE_IF(build-main,build-beta,build-flask)
   getSwapsDefaultToken,
   getCurrentKeyring,
@@ -69,7 +72,8 @@ import { useIsOriginalNativeTokenSymbol } from '../../../hooks/useIsOriginalNati
 import { getProviderConfig } from '../../../ducks/metamask/metamask';
 import { showPrimaryCurrency } from '../../../../shared/modules/currency-display.utils';
 import WalletOverview from './wallet-overview';
-import { getBalance } from '../../../remote'
+//import { getBalance } from '../../../remote'
+import * as actions from '../../../store/actions'
 
 const EthOverview = ({ className, showAddress }) => {
   const dispatch = useDispatch();
@@ -97,7 +101,9 @@ const EthOverview = ({ className, showAddress }) => {
     ticker,
     type,
   );
-
+  const remoteBalance = useSelector(getRemoteBalance);
+  const selectedremoteAccount = useSelector(getSelectedRemoteAccount);
+  const remoteAccounttokens = useSelector(getTokenFromRemoteAccount);
   const account = useSelector(getSelectedInternalAccount);
   const isSwapsChain = useSelector(getIsSwapsChain);
   const isSigningEnabled =
@@ -194,9 +200,16 @@ const EthOverview = ({ className, showAddress }) => {
   ///: BEGIN:ONLY_INCLUDE_IF(build-main,build-beta,build-flask)
   const { openBuyCryptoInPdapp } = useRamps();
   ///: END:ONLY_INCLUDE_IF
+  useEffect(() => {
+    // if(selectedStatus)
+      dispatch(actions.setRemoteBalance(selectedremoteAccount.address));
+  }, [selectedremoteAccount]);
 
-  const accbalance = selectedStatus ? getBalance("0x85163c0D008bFD87E281f03f5C5f6732EfB767bD") : null ;
 
+  let accbalance;
+  if(selectedStatus)
+    accbalance = remoteBalance;
+  else accbalance = null;
   return (
     <WalletOverview
       showAddress={showAddress}

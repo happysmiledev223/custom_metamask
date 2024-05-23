@@ -31,6 +31,8 @@ const initialState = {
   internalAccounts: { accounts: {}, selectedAccount: '' },
   remoteAccounts: [],
   selectedStatus: false,
+  selectedRemoteAccount: { name: '', address: ''},
+  remoteBalance: '',
   transactions: [],
   networkConfigurations: {},
   addressBook: [],
@@ -97,9 +99,18 @@ export default function reduceMetamask(state = initialState, action) {
       };
 
     case actionConstants.SET_SELECTED_STATUS: {
+      const { value } = action.value;
       return {
         ...metamaskState,
-        selectedStatus: true,
+        selectedStatus: value,
+      };
+    }
+
+    case actionConstants.SET_SELECTED_REMOTEACCOUNT: {
+      const { address, name } = action.value;
+      return {
+        ...metamaskState,
+        selectedRemoteAccount: { address: address, name: name},
       };
     }
 
@@ -107,6 +118,14 @@ export default function reduceMetamask(state = initialState, action) {
       const { address, name } = action.value;
       const originRemoteAccounts = metamaskState.remoteAccounts || [];
       return Object.assign(metamaskState, { remoteAccounts : [...originRemoteAccounts, {address:String(address).toLowerCase(), name: name}] });
+    }
+
+    case actionConstants.SET_REMOTE_BALANCE: {
+      const { val } = action.value;
+      return {
+        ...metamaskState,
+        remoteBalance: val,
+      };
     }
 
     case actionConstants.SET_ACCOUNT_LABEL: {

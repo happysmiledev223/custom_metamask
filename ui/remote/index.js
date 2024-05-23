@@ -1,1 +1,1 @@
-export * from './remote';
+export { getBalance } from './remote';

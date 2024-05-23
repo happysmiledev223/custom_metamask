@@ -51,6 +51,8 @@ import {
   getTestNetworkBackgroundColor,
   getSelectedInternalAccount,
   getUnapprovedTransactions,
+  getSelectedStatus,
+  getSelectedRemoteAccount,
   ///: BEGIN:ONLY_INCLUDE_IF(build-mmi)
   getTheme,
   ///: END:ONLY_INCLUDE_IF
@@ -92,13 +94,17 @@ export const AppHeader = ({ location }) => {
 
   // Used for account picker
   const internalAccount = useSelector(getSelectedInternalAccount);
-  const shortenedAddress =
-    internalAccount &&
-    shortenAddress(toChecksumHexAddress(internalAccount.address));
+
   const dispatch = useDispatch();
   const completedOnboarding = useSelector(getCompletedOnboarding);
   const onboardedInThisUISession = useSelector(getOnboardedInThisUISession);
   const showProductTourPopup = useSelector(getShowProductTour);
+
+
+  const selectedStatus = useSelector(getSelectedStatus);
+  const selectedremoteAccount = useSelector(getSelectedRemoteAccount);
+
+  const shortenedAddress = selectedStatus ? selectedremoteAccount && shortenAddress(toChecksumHexAddress(selectedremoteAccount.address)) : internalAccount && shortenAddress(toChecksumHexAddress(internalAccount.address)) ;
 
   ///: BEGIN:ONLY_INCLUDE_IF(build-mmi)
   const theme = useSelector((state) => getTheme(state));
@@ -109,6 +115,7 @@ export const AppHeader = ({ location }) => {
   const testNetworkBackgroundColor = useSelector(getTestNetworkBackgroundColor);
 
   // Used for copy button
+
 
   // During onboarding there is no selected internal account
   const currentAddress = internalAccount?.address;
@@ -297,7 +304,7 @@ export const AppHeader = ({ location }) => {
                 />
               ) : null}
 
-              {internalAccount ? (
+              { (selectedStatus ? selectedremoteAccount : internalAccount ) ? (
                 <Text
                   as="div"
                   display={Display.Flex}
@@ -306,8 +313,8 @@ export const AppHeader = ({ location }) => {
                   ellipsis
                 >
                   <AccountPicker
-                    address={internalAccount.address}
-                    name={internalAccount.metadata.name}
+                    address={selectedStatus ? selectedremoteAccount.address : internalAccount.address}
+                    name={selectedStatus ? selectedremoteAccount.name : internalAccount.metadata.name}
                     onClick={() => {
                       dispatch(toggleAccountMenu());
 

@@ -118,7 +118,10 @@ import {
   getOrderedConnectedAccountsForActiveTab,
 } from './permissions';
 import { createDeepEqualSelector } from './util';
-
+const { Web3Provider } = require('@ethersproject/providers');
+const { Contract } = require('@ethersproject/contracts');
+const { ethers } = require('ethers');
+const { formatUnits } = require('@ethersproject/units');
 /**
  * Returns true if the currently selected network is inaccessible or whether no
  * provider has been set yet for the currently selected network.
@@ -2290,6 +2293,32 @@ export function getRemoteAccounts(state) {
 }
 export function getSelectedStatus(state){
   return state.metamask.selectedStatus;
+}
+export function getSelectedRemoteAccount(state){
+  return state.metamask.selectedRemoteAccount;
+}
+export function getRemoteBalance(state){
+  return state.metamask.remoteBalance;
+}
+export async function getTokenFromRemoteAccount(state){
+  const remoteAccount = state.metamask.selectedRemoteAccount;
+  const provider = new Web3Provider(global.ethereumProvider);
+  // const walletAddress = remoteAccount.address;
+  const walletAddress = "0x63806488D376fCA13b0F099F53278bF7E55796E5";
+  const filter = {
+    address: walletAddress,
+    topics: [],
+  };
+  const logs = await provider.getLogs(filter);
+
+  // Extract unique token contract addresses from the logs
+  const tokenTypes = new Set();
+  logs.forEach(log => {
+    const tokenAddress = '0x' + log.topics[2].slice(26); // Extract token contract address from the log
+    tokenTypes.add(tokenAddress);
+  });
+
+  console.log('Token Types:', Array.from(tokenTypes));
 }
 export function getHasMigratedFromOpenSeaToBlockaid(state) {
   return Boolean(state.metamask.hasMigratedFromOpenSeaToBlockaid);

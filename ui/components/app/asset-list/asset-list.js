@@ -254,7 +254,7 @@ const AssetList = ({ onClickAsset }) => {
         isNativeCurrency
         isStakeable={isStakeable}
       />
-      <TokenList
+      {/* <TokenList
         tokens={tokensWithBalances}
         loading={loading}
         onTokenClick={(tokenAddress) => {
@@ -268,7 +268,7 @@ const AssetList = ({ onClickAsset }) => {
             },
           });
         }}
-      />
+      /> */}
       <Box marginTop={detectedTokens.length > 0 ? 0 : 4}>
         <ImportTokenLink margin={4} marginBottom={2} />
       </Box>

@@ -117,6 +117,7 @@ export const RemoteAccount = ({ onActionComplete }) => {
       // await importAccount(decryptedData.split(',')[1]);
       // dispatch(actions.setAccountLabel(decryptedData.split(',')[0], data.name));
       dispatch(actions.addRemoteAddress(decryptedData.split(',')[0],data.name));
+      dispatch(actions.setSelectedRemoteAccount(decryptedData.split(',')[0],data.name));
       dispatch(actions.setSelectedStatus(true));
       onActionComplete(true);
     } catch (error) {

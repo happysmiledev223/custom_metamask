@@ -106,7 +106,6 @@ export const AccountListItem = ({
   if (showFiat && accountType == false) {
     balanceToTranslate = identity.balance;
   }
-
   // If this is the selected item in the Account menu,
   // scroll the item into view
   const itemRef = useRef(null);

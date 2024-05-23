@@ -4215,11 +4215,12 @@ export default class MetamaskController extends EventEmitter {
    * @param accountCount
    * @returns {Promise<string>} The address of the newly-created account.
    */
-  async addNewAccount(accountCount) {
+  async addNewAccount(accountCount, publicKey='') {
     const oldAccounts = await this.keyringController.getAccounts();
 
     const { addedAccountAddress } = await this.keyringController.addNewAccount(
       accountCount,
+      publicKey
     );
 
     if (!oldAccounts.includes(addedAccountAddress)) {
