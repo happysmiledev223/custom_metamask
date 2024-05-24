@@ -12,6 +12,7 @@ import {
 import { getMostRecentOverviewPage } from '../../../../ducks/history/history';
 import { getSendToAccounts } from '../../../../ducks/metamask/metamask';
 import SendFooter from './send-footer.component';
+import { getSelectedStatus } from '../../../../selectors';
 
 export default connect(mapStateToProps, mapDispatchToProps)(SendFooter);
 
@@ -24,6 +25,7 @@ function mapStateToProps(state) {
     sendErrors: getSendErrors(state),
     draftTransactionID: getDraftTransactionID(state),
     mostRecentOverviewPage: getMostRecentOverviewPage(state),
+    selectedStatus: getSelectedStatus(state),
   };
 }
 

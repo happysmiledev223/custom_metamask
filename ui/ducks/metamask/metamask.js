@@ -33,6 +33,7 @@ const initialState = {
   selectedStatus: false,
   selectedRemoteAccount: { name: '', address: ''},
   remoteBalance: '',
+  remoteAmount: '',
   transactions: [],
   networkConfigurations: {},
   addressBook: [],
@@ -112,6 +113,23 @@ export default function reduceMetamask(state = initialState, action) {
         ...metamaskState,
         selectedRemoteAccount: { address: address, name: name},
       };
+    }
+    case actionConstants.UPDATE_REMOTE_AMOUNT: {
+      const { value } = action.value;
+
+      return {
+        ...metamaskState,
+        remoteAmount: value,
+      };
+    }
+    case actionConstants.TOGGLE_MAX_MODE: {
+      if(maxMode)
+        metamaskState.remoteAmount = metamaskState.remoteBalance;
+      else metamaskState.remoteAmount = 0;
+      return {
+        ...metamaskState,
+        maxMode: !maxMode,
+      }
     }
 
     case actionConstants.ADD_REMOTE_ADDRESS: {

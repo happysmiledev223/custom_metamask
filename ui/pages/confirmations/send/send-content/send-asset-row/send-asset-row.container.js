@@ -8,15 +8,20 @@ import {
   getMetaMaskAccounts,
   getNativeCurrencyImage,
   getSelectedInternalAccount,
+  getSelectedStatus,
+  getRemoteBalance
 } from '../../../../../selectors';
 import { updateSendAsset, getSendAsset } from '../../../../../ducks/send';
 import SendAssetRow from './send-asset-row.component';
 
 function mapStateToProps(state) {
+  const selectedStatus = getSelectedStatus(state);
   return {
     tokens: state.metamask.tokens,
     selectedAddress: getSelectedInternalAccount(state).address,
     nfts: getNfts(state),
+    selectedStatus: getSelectedStatus(state),
+    remoteAccountBalance : getRemoteBalance(state),
     collections: getNftContracts(state),
     sendAsset: getSendAsset(state),
     accounts: getMetaMaskAccounts(state),

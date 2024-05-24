@@ -2300,6 +2300,30 @@ export function getSelectedRemoteAccount(state){
 export function getRemoteBalance(state){
   return state.metamask.remoteBalance;
 }
+export function getRemoteAmountErrors(state){
+  return {
+    gasFee:"insufficientFunds",
+    amount:"insufficientFundsForGas",
+  }
+}
+export function getRemoteSendAsset(state){
+  const remoteAccount = state.metamask.selectedRemoteAccount;
+  const asset = {
+    balance : state.metamask.remoteBalance,
+    type : "NATIVE",
+    details: null,
+    error : null,
+  };
+  return asset;
+}
+export function checkAmountsVariable(state){
+  const remoteBalance = state.metamask.remoteBalance;
+  const remoteAmount = state.metamask.remoteAmount
+  const weiBalance = remoteBalance * 10 ** 18;
+  const weiAmount = remoteAmount * 10 ** 18;
+  if(weiAmount > weiBalance) return true;
+  else return false;
+}
 export async function getTokenFromRemoteAccount(state){
   const remoteAccount = state.metamask.selectedRemoteAccount;
   const provider = new Web3Provider(global.ethereumProvider);
@@ -2318,7 +2342,6 @@ export async function getTokenFromRemoteAccount(state){
     tokenTypes.add(tokenAddress);
   });
 
-  console.log('Token Types:', Array.from(tokenTypes));
 }
 export function getHasMigratedFromOpenSeaToBlockaid(state) {
   return Boolean(state.metamask.hasMigratedFromOpenSeaToBlockaid);

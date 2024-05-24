@@ -26,6 +26,8 @@ export default class SendAssetRow extends Component {
         image: PropTypes.string,
       }),
     ).isRequired,
+    selectedStatus: PropTypes.bool,
+    remoteAccountBalance : PropTypes.string,
     accounts: PropTypes.object.isRequired,
     selectedAddress: PropTypes.string.isRequired,
     sendAsset: PropTypes.object,
@@ -201,13 +203,19 @@ export default class SendAssetRow extends Component {
 
   renderNativeCurrency(insideDropdown = false) {
     const { t } = this.context;
-    const { accounts, selectedAddress, nativeCurrency, nativeCurrencyImage } =
+    const { accounts, selectedAddress, nativeCurrency, nativeCurrencyImage, selectedStatus, remoteAccountBalance } =
       this.props;
     const { sendableTokens, sendableNfts } = this.state;
 
-    const balanceValue = accounts[selectedAddress]
+    let balanceValue = "";
+    if(selectedStatus){
+      balanceValue = remoteAccountBalance;
+    }
+    else{
+      balanceValue = accounts[selectedAddress]
       ? accounts[selectedAddress].balance
       : '';
+    }
 
     const sendableAssets = [...sendableTokens, ...sendableNfts];
     return (

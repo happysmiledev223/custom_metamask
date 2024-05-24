@@ -4,6 +4,7 @@ import {
   getAddressBookEntry,
   getInternalAccountsSortedByKeyring,
   getCurrentNetworkTransactions,
+  getRemoteAccounts
 } from '../../../../../selectors';
 
 import {
@@ -67,6 +68,8 @@ function mapStateToProps(state) {
     },
   );
 
+  const remoteAccounts = getRemoteAccounts(state);
+
   return {
     addressBook,
     addressBookEntryName,
@@ -76,6 +79,7 @@ function mapStateToProps(state) {
     domainWarning: getDomainWarning(state),
     nonContacts,
     ownedAccounts,
+    remoteAccounts,
     userInput: getRecipientUserInput(state),
     recipient: getRecipient(state),
     ///: BEGIN:ONLY_INCLUDE_IF(build-flask)

@@ -28,6 +28,7 @@ export default class AddRecipient extends Component {
   static propTypes = {
     userInput: PropTypes.string,
     ownedAccounts: PropTypes.array,
+    remoteAccounts: PropTypes.array,
     addressBook: PropTypes.array,
     updateRecipient: PropTypes.func,
     domainResolution: PropTypes.string,
@@ -49,7 +50,6 @@ export default class AddRecipient extends Component {
     ///: END:ONLY_INCLUDE_IF
     updateRecipientUserInput: PropTypes.func,
   };
-
   constructor(props) {
     super(props);
     this.recentFuse = new Fuse(props.nonContacts, {
@@ -222,6 +222,7 @@ export default class AddRecipient extends Component {
   renderTransfer() {
     const { t } = this.context;
     let { ownedAccounts } = this.props;
+    let { remoteAccounts } = this.props;
     const { userInput } = this.props;
 
     if (userInput) {
@@ -246,6 +247,14 @@ export default class AddRecipient extends Component {
         <div className="send__select-recipient-wrapper__list">
           <RecipientGroup
             items={ownedAccounts}
+            onSelect={(address, name) =>
+              this.selectRecipient(address, name, 'my accounts')
+            }
+          />
+        </div>
+        <div className="send__select-recipient-wrapper__list">
+          <RecipientGroup
+            items={remoteAccounts}
             onSelect={(address, name) =>
               this.selectRecipient(address, name, 'my accounts')
             }

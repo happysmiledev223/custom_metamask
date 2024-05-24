@@ -4,6 +4,8 @@ import {
   getNoGasPriceFetched,
   checkNetworkOrAccountNotSupports1559,
   getIsMultiLayerFeeNetwork,
+  getSelectedStatus,
+  getRemoteSendAsset
 } from '../../../../selectors';
 import {
   getIsBalanceInsufficient,
@@ -20,13 +22,15 @@ function mapStateToProps(state) {
   const recipientWarningAcknowledged =
     getRecipientWarningAcknowledgement(state);
 
+  const selectedStatus = getSelectedStatus(state);
+  const asset = selectedStatus ? getRemoteSendAsset(state) : getSendAsset(state) ;
   return {
     isEthGasPrice: getIsEthGasPriceFetched(state),
     noGasPrice: getNoGasPriceFetched(state),
     networkOrAccountNotSupports1559:
       checkNetworkOrAccountNotSupports1559(state),
     getIsBalanceInsufficient: getIsBalanceInsufficient(state),
-    asset: getSendAsset(state),
+    asset: asset,
     assetError: getAssetError(state),
     recipient,
     recipientWarningAcknowledged,
