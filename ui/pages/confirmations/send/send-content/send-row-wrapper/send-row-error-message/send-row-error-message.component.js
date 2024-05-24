@@ -17,6 +17,7 @@ export default class SendRowErrorMessage extends Component {
 
     const errorMessage = errors[errorType];
 
+
     return errorMessage ? (
       <div
         className={classnames('send-v2__error', {

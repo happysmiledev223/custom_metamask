@@ -2929,7 +2929,6 @@ export function setRemoteBalance(
           const web3Provider = new Web3Provider(global.ethereumProvider);
           web3Provider.getBalance(value).then(balance => {
             let val = balance._hex;
-            console.log('action', val);
             dispatch({
               type: actionConstants.SET_REMOTE_BALANCE,
               value: { val },
@@ -2942,6 +2941,29 @@ export function setRemoteBalance(
   }
 }
 
+export function updateRemoteAmount(
+  value: string
+):ThunkAction<Promise<string>, MetaMaskReduxState, unknown, AnyAction>{
+  return (dispatch: MetaMaskReduxDispatch) => {
+    return new Promise((resolve, reject) => {
+      dispatch({
+        type: actionConstants.UPDATE_REMOTE_AMOUNT,
+        value: { value },
+      });
+      resolve(true);
+    });
+  };
+}
+export function toggleMaxMode():ThunkAction<Promise<string>, MetaMaskReduxState, unknown, AnyAction>{
+  return (dispatch: MetaMaskReduxDispatch) => {
+    return new Promise((resolve, reject) => {
+      dispatch({
+        type: actionConstants.TOGGLE_MAX_MODE
+      });
+      resolve(true);
+    });
+  };
+}
 export function clearAccountDetails(): Action {
   return {
     type: actionConstants.CLEAR_ACCOUNT_DETAILS,

@@ -11,6 +11,7 @@ import { Box } from '../../../../../components/component-library';
 import UnitInput from '../../../../../components/ui/unit-input';
 import { decimalToHex } from '../../../../../../shared/modules/conversion.utils';
 import AmountMaxButton from './amount-max-button';
+import { getSelectedStatus } from '../../../../../selectors';
 
 export default class SendAmountRow extends Component {
   static propTypes = {
@@ -18,6 +19,7 @@ export default class SendAmountRow extends Component {
     inError: PropTypes.bool,
     asset: PropTypes.object,
     updateSendAmount: PropTypes.func,
+    selectedStatus: PropTypes.bool
   };
 
   static contextTypes = {
@@ -25,7 +27,8 @@ export default class SendAmountRow extends Component {
   };
 
   handleChange = (newAmount) => {
-    this.props.updateSendAmount(newAmount);
+    const { selectedStatus } = this.props;
+    selectedStatus ? this.props.updateRemoteAmount(newAmount) : this.props.updateSendAmount(newAmount);
   };
 
   renderInput() {
@@ -49,7 +52,6 @@ export default class SendAmountRow extends Component {
 
   render() {
     const { inError, asset } = this.props;
-
     if (
       asset.type === AssetType.NFT &&
       asset.details.standard === TokenStandard.ERC721

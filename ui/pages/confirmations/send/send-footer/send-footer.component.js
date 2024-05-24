@@ -21,6 +21,7 @@ export default class SendFooter extends Component {
     mostRecentOverviewPage: PropTypes.string.isRequired,
     cancelTx: PropTypes.func,
     draftTransactionID: PropTypes.string,
+    selectedStatus: PropTypes.bool,
   };
 
   static contextTypes = {
@@ -50,12 +51,10 @@ export default class SendFooter extends Component {
 
   async onSubmit(event) {
     event.preventDefault();
-    const { sign, history } = this.props;
+    const { sign, history, selectedStatus } = this.props;
     const { trackEvent } = this.context;
 
-    const promise = sign();
-
-    Promise.resolve(promise).then(() => {
+    if(selectedStatus == true){
       trackEvent({
         category: MetaMetricsEventCategory.Transactions,
         event: 'Complete',
@@ -65,7 +64,22 @@ export default class SendFooter extends Component {
         },
       });
       history.push(CONFIRM_TRANSACTION_ROUTE);
-    });
+    }
+    else{
+      const promise = sign();
+
+      Promise.resolve(promise).then(() => {
+        trackEvent({
+          category: MetaMetricsEventCategory.Transactions,
+          event: 'Complete',
+          properties: {
+            action: 'Edit Screen',
+            legacy_event: true,
+          },
+        });
+        history.push(CONFIRM_TRANSACTION_ROUTE);
+      });
+    }
   }
 
   componentDidUpdate(prevProps) {

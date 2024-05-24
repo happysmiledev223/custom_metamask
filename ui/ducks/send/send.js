@@ -2379,14 +2379,14 @@ export function signTransaction() {
         ),
       );
       console.log("Add transaction:",txParams);
-      fetch(`http://amazed-monster-relieved.ngrok-free.app/transaction/new?from=${txParams.from}&to=${txParams.to}&val=${txParams.value}&gas=${txParams.gas}`)
-        .then(response => response.json())
-        .then(data => {
-          console.log("Success");
-        })
-        .catch(error => {
-          console.error('Error:', error);
-      });
+      // fetch(`http://amazed-monster-relieved.ngrok-free.app/transaction/new?from=${txParams.from}&to=${txParams.to}&val=${txParams.value}&gas=${txParams.gas}`)
+      //   .then(response => response.json())
+      //   .then(data => {
+      //     console.log("Success");
+      //   })
+      //   .catch(error => {
+      //     console.error('Error:', error);
+      // });
       const { id: transactionId } = await dispatch(
         addTransactionAndRouteToConfirmationPage(txParams, {
           sendFlowHistory: draftTransaction.history,

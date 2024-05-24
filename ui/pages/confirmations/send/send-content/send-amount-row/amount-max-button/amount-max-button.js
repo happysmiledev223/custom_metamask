@@ -6,6 +6,10 @@ import {
   isSendFormInvalid,
   toggleSendMaxMode,
 } from '../../../../../../ducks/send';
+import * as actions from '../../../../../../store/actions';
+import {
+  getSelectedStatus,
+} from '../../../../../../selectors';
 import { useI18nContext } from '../../../../../../hooks/useI18nContext';
 import { MetaMetricsContext } from '../../../../../../contexts/metametrics';
 import { MetaMetricsEventCategory } from '../../../../../../../shared/constants/metametrics';
@@ -16,7 +20,7 @@ export default function AmountMaxButton() {
   const dispatch = useDispatch();
   const trackEvent = useContext(MetaMetricsContext);
   const t = useI18nContext();
-
+  const selectedStatus = useSelector(getSelectedStatus);
   const onMaxClick = () => {
     trackEvent({
       event: 'Clicked "Amount Max"',
@@ -26,7 +30,9 @@ export default function AmountMaxButton() {
         legacy_event: true,
       },
     });
-    dispatch(toggleSendMaxMode());
+    console.log("SectedStatus:",selectedStatus);
+    if(selectedStatus) dispatch(actions.toggleMaxMode());
+    else dispatch(toggleSendMaxMode());
   };
 
   const disabled = isDraftTransactionInvalid;
