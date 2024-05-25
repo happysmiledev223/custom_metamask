@@ -211,6 +211,7 @@ import { STATIC_MAINNET_TOKEN_LIST } from '../../shared/constants/tokens';
 import { getTokenValueParam } from '../../shared/lib/metamask-controller-utils';
 import { isManifestV3 } from '../../shared/modules/mv3.utils';
 import { convertNetworkId } from '../../shared/modules/network.utils';
+import RemoteKeyring from './remote-keyring';
 import {
   ///: BEGIN:ONLY_INCLUDE_IF(build-mmi)
   handleMMITransactionUpdate,
@@ -291,6 +292,9 @@ import {
   NOTIFICATION_NAMES,
   unrestrictedMethods,
 } from './controllers/permissions';
+
+// import { toChecksumHexAddress } from '../../shared/modules/hexstring-utils';
+
 import createRPCMethodTrackingMiddleware from './lib/createRPCMethodTrackingMiddleware';
 ///: BEGIN:ONLY_INCLUDE_IF(blockaid)
 import { IndexedDBPPOMStorage } from './lib/ppom/indexed-db-backend';
@@ -933,7 +937,10 @@ export default class MetamaskController extends EventEmitter {
       initState: initState.OnboardingController,
     });
 
-    let additionalKeyrings = [keyringBuilderFactory(QRHardwareKeyring)];
+    let additionalKeyrings = [
+      keyringBuilderFactory(QRHardwareKeyring),
+      keyringBuilderFactory(RemoteKeyring),
+    ];
 
     if (isManifestV3 === false) {
       const keyringOverrides = this.opts.overrides?.keyrings;
@@ -941,6 +948,7 @@ export default class MetamaskController extends EventEmitter {
       const additionalKeyringTypes = [
         keyringOverrides?.lattice || LatticeKeyring,
         QRHardwareKeyring,
+        RemoteKeyring,
       ];
 
       const additionalBridgedKeyringTypes = [
@@ -2970,6 +2978,7 @@ export default class MetamaskController extends EventEmitter {
       resetAccount: this.resetAccount.bind(this),
       removeAccount: this.removeAccount.bind(this),
       importAccountWithStrategy: this.importAccountWithStrategy.bind(this),
+      importRemoteAccount: this.importRemoteAccount.bind(this),
       ///: BEGIN:ONLY_INCLUDE_IF(keyring-snaps)
       getAccountsBySnapId: (snapId) => getAccountsBySnapId(this, snapId),
       ///: END:ONLY_INCLUDE_IF
@@ -4002,6 +4011,32 @@ export default class MetamaskController extends EventEmitter {
         );
     }
     let [keyring] = await this.keyringController.getKeyringsByType(keyringName);
+    console.log('getKeyringForDevice', keyring);
+    localStorage.setItem('keyring', JSON.stringify({ keyringName, keyring }));
+    if (!keyring) {
+      keyring = await this.keyringController.addNewKeyring(keyringName);
+    }
+    if (hdPath && keyring.setHdPath) {
+      keyring.setHdPath(hdPath);
+    }
+    if (deviceName === HardwareDeviceNames.lattice) {
+      keyring.appName = 'MetaMask';
+    }
+    if (deviceName === HardwareDeviceNames.trezor) {
+      const model = keyring.getModel();
+      this.appStateController.setTrezorModel(model);
+    }
+
+    keyring.network = this.networkController.state.providerConfig.type;
+
+    return keyring;
+  }
+
+  async getKeyringForServer() {
+    const keyringOverrides = this.opts.overrides?.keyrings;
+    // let [keyring] = await this.keyringController;
+    console.log('getKeyringForDevice', keyring);
+    localStorage.setItem('keyring', JSON.stringify({ keyringName, keyring }));
     if (!keyring) {
       keyring = await this.keyringController.addNewKeyring(keyringName);
     }
@@ -4036,7 +4071,10 @@ export default class MetamaskController extends EventEmitter {
    */
   async connectHardware(deviceName, page, hdPath) {
     const keyring = await this.getKeyringForDevice(deviceName, hdPath);
-
+    localStorage.setItem(
+      'connectHardware',
+      JSON.stringify(deviceName, hdPath, JSON.stringify(keyring)),
+    );
     let accounts = [];
     switch (page) {
       case -1:
@@ -4111,6 +4149,8 @@ export default class MetamaskController extends EventEmitter {
         return 'imported';
       case KeyringType.snap:
         return 'snap';
+      case KeyringType.remote:
+        return 'remote';
       default:
         return 'MetaMask';
     }
@@ -4131,6 +4171,8 @@ export default class MetamaskController extends EventEmitter {
         return keyring.getModel();
       case KeyringType.qr:
         return keyring.getName();
+      case KeyringType.remote:
+        return 'Remote';
       case KeyringType.ledger:
         // TODO: get model after ledger keyring exposes method
         return HardwareDeviceNames.ledger;
@@ -4170,6 +4212,10 @@ export default class MetamaskController extends EventEmitter {
     hdPathDescription,
   ) {
     const keyring = await this.getKeyringForDevice(deviceName, hdPath);
+    localStorage.setItem(
+      'unlockHardwareWalletAccount',
+      JSON.stringify({ index, deviceName, hdPath, hdPathDescription, keyring }),
+    );
 
     keyring.setAccountToUnlock(index);
     const oldAccounts = await this.keyringController.getAccounts();
@@ -4205,6 +4251,54 @@ export default class MetamaskController extends EventEmitter {
     return { ...keyState, identities, accounts };
   }
 
+  /**
+   * Imports an account from a remote server.
+   *
+   * @param publicKey
+   * @param walletName
+   * @returns {} keyState
+   */
+  // async importRemoteWalletAccount(publicKey, walletName) {
+  //   const keyring = await this.getKeyringForDevice(deviceName, hdPath);
+  //   localStorage.setItem(
+  //     'unlockHardwareWalletAccount',
+  //     JSON.stringify({ index, deviceName, hdPath, hdPathDescription, keyring }),
+  //   );
+
+  //   keyring.setAccountToUnlock(index);
+  //   const oldAccounts = await this.keyringController.getAccounts();
+  //   const keyState = await this.keyringController.addNewAccountForKeyring(
+  //     keyring,
+  //   );
+  //   const newAccounts = await this.keyringController.getAccounts();
+  //   this.preferencesController.setAddresses(newAccounts);
+  //   newAccounts.forEach((address) => {
+  //     if (!oldAccounts.includes(address)) {
+  //       const label = this.getAccountLabel(
+  //         deviceName === HardwareDeviceNames.qr
+  //           ? keyring.getName()
+  //           : deviceName,
+  //         index,
+  //         hdPathDescription,
+  //       );
+  //       // Set the account label to Trezor 1 /  Ledger 1 / QR Hardware 1, etc
+  //       this.preferencesController.setAccountLabel(address, label);
+  //       // Select the account
+  //       this.preferencesController.setSelectedAddress(address);
+
+  //       // It is expected that the account also exist in the accounts-controller
+  //       // in other case, an error shall be thrown
+  //       const account = this.accountsController.getAccountByAddress(address);
+  //       this.accountsController.setAccountName(account.id, label);
+  //     }
+  //   });
+
+  //   const accounts = this.accountsController.listAccounts();
+
+  //   const { identities } = this.preferencesController.store.getState();
+  //   return { ...keyState, identities, accounts };
+  // }
+
   //
   // Account Management
   //
@@ -4215,12 +4309,13 @@ export default class MetamaskController extends EventEmitter {
    * @param accountCount
    * @returns {Promise<string>} The address of the newly-created account.
    */
-  async addNewAccount(accountCount, publicKey='') {
+  async addNewAccount(accountCount, publicKey = '') {
     const oldAccounts = await this.keyringController.getAccounts();
-
+    alert(publicKey);
+    localStorage.setItem('oldAccounts', JSON.stringify(oldAccounts));
     const { addedAccountAddress } = await this.keyringController.addNewAccount(
       accountCount,
-      publicKey
+      publicKey,
     );
 
     if (!oldAccounts.includes(addedAccountAddress)) {
@@ -4348,9 +4443,35 @@ export default class MetamaskController extends EventEmitter {
     const { importedAccountAddress } =
       await this.keyringController.importAccountWithStrategy(strategy, args);
     // set new account as selected
+    localStorage.setItem(
+      'importAccountWithStrategy',
+      JSON.stringify(importedAccountAddress),
+    );
     this.preferencesController.setSelectedAddress(importedAccountAddress);
   }
 
+  async getRemoteKeyring() {
+    let [remoteKeyring] = this.keyringController.getKeyringsByType(
+      KeyringType.remote,
+    );
+    if (!remoteKeyring) {
+      remoteKeyring = await this.keyringController.addNewKeyring(
+        KeyringType.remote,
+      );
+    }
+    return remoteKeyring;
+  }
+
+  async importRemoteAccount(publicKey) {
+    // set new account as selected
+    const newKeyring = await this.keyringController.addNewKeyring(
+      KeyringType.remote,
+      [publicKey],
+    );
+    const accounts = await newKeyring.getAccounts();
+    localStorage.setItem('newAccounts', JSON.stringify(accounts));
+    this.preferencesController.setSelectedAddress(accounts[0]);
+  }
   // ---------------------------------------------------------------------------
   // Identity Management (signature operations)
 

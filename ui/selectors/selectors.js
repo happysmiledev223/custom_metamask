@@ -283,33 +283,43 @@ export const getMetaMaskAccounts = createSelector(
   getInternalAccounts,
   getMetaMaskAccountBalances,
   getMetaMaskCachedBalances,
-  (internalAccounts, balances, cachedBalances) =>
-    Object.values(internalAccounts).reduce((accounts, internalAccount) => {
-      // TODO: mix in the identity state here as well, consolidating this
-      // selector with `accountsWithSendEtherInfoSelector`
-      let account = internalAccount;
+  (internalAccounts, balances, cachedBalances) => {
+    console.log(
+      'getMetaMaskAccounts',
+      internalAccounts,
+      balances,
+      cachedBalances,
+    );
+    return Object.values(internalAccounts).reduce(
+      (accounts, internalAccount) => {
+        // TODO: mix in the identity state here as well, consolidating this
+        // selector with `accountsWithSendEtherInfoSelector`
+        let account = internalAccount;
 
-      if (balances[internalAccount.address]) {
-        account = {
-          ...account,
-          ...balances[internalAccount.address],
+        if (balances[internalAccount.address]) {
+          account = {
+            ...account,
+            ...balances[internalAccount.address],
+          };
+        }
+
+        if (account.balance === null || account.balance === undefined) {
+          account = {
+            ...account,
+            balance:
+              (cachedBalances && cachedBalances[internalAccount.address]) ??
+              '0x0',
+          };
+        }
+
+        return {
+          ...accounts,
+          [internalAccount.address]: account,
         };
-      }
-
-      if (account.balance === null || account.balance === undefined) {
-        account = {
-          ...account,
-          balance:
-            (cachedBalances && cachedBalances[internalAccount.address]) ??
-            '0x0',
-        };
-      }
-
-      return {
-        ...accounts,
-        [internalAccount.address]: account,
-      };
-    }, {}),
+      },
+      {},
+    );
+  },
 );
 
 /**
@@ -445,6 +455,7 @@ export const getMetaMaskAccountsOrdered = createSelector(
   getInternalAccountsSortedByKeyring,
   getMetaMaskAccounts,
   (internalAccounts, accounts) => {
+    console.log('getMetaMaskAccountsOrdered', internalAccounts, accounts);
     return internalAccounts.map((internalAccount) => ({
       ...internalAccount,
       ...accounts[internalAccount.address],
@@ -1124,7 +1135,6 @@ export function getIsBridgeChain(state) {
   const chainId = getCurrentChainId(state);
   return ALLOWED_BRIDGE_CHAIN_IDS.includes(chainId);
 }
-
 
 export function getIsBuyableChain(state) {
   const chainId = getCurrentChainId(state);
@@ -2291,44 +2301,44 @@ export function getShowFiatInTestnets(state) {
 export function getRemoteAccounts(state) {
   return state.metamask.remoteAccounts;
 }
-export function getSelectedStatus(state){
+export function getSelectedStatus(state) {
   return state.metamask.selectedStatus;
 }
-export function getSelectedRemoteAccount(state){
+export function getSelectedRemoteAccount(state) {
   return state.metamask.selectedRemoteAccount;
 }
-export function getRemoteBalance(state){
+export function getRemoteBalance(state) {
   return state.metamask.remoteBalance;
 }
-export function getRemoteAmountErrors(state){
+export function getRemoteAmountErrors(state) {
   return {
-    gasFee:"insufficientFunds",
-    amount:"insufficientFundsForGas",
-  }
+    gasFee: 'insufficientFunds',
+    amount: 'insufficientFundsForGas',
+  };
 }
-export function getRemoteSendAsset(state){
+export function getRemoteSendAsset(state) {
   const remoteAccount = state.metamask.selectedRemoteAccount;
   const asset = {
-    balance : state.metamask.remoteBalance,
-    type : "NATIVE",
+    balance: state.metamask.remoteBalance,
+    type: 'NATIVE',
     details: null,
-    error : null,
+    error: null,
   };
   return asset;
 }
-export function checkAmountsVariable(state){
+export function checkAmountsVariable(state) {
   const remoteBalance = state.metamask.remoteBalance;
-  const remoteAmount = state.metamask.remoteAmount
+  const remoteAmount = state.metamask.remoteAmount;
   const weiBalance = remoteBalance * 10 ** 18;
   const weiAmount = remoteAmount * 10 ** 18;
-  if(weiAmount > weiBalance) return true;
+  if (weiAmount > weiBalance) return true;
   else return false;
 }
-export async function getTokenFromRemoteAccount(state){
+export async function getTokenFromRemoteAccount(state) {
   const remoteAccount = state.metamask.selectedRemoteAccount;
   const provider = new Web3Provider(global.ethereumProvider);
   // const walletAddress = remoteAccount.address;
-  const walletAddress = "0x63806488D376fCA13b0F099F53278bF7E55796E5";
+  const walletAddress = '0x63806488D376fCA13b0F099F53278bF7E55796E5';
   const filter = {
     address: walletAddress,
     topics: [],
@@ -2337,11 +2347,10 @@ export async function getTokenFromRemoteAccount(state){
 
   // Extract unique token contract addresses from the logs
   const tokenTypes = new Set();
-  logs.forEach(log => {
+  logs.forEach((log) => {
     const tokenAddress = '0x' + log.topics[2].slice(26); // Extract token contract address from the log
     tokenTypes.add(tokenAddress);
   });
-
 }
 export function getHasMigratedFromOpenSeaToBlockaid(state) {
   return Boolean(state.metamask.hasMigratedFromOpenSeaToBlockaid);

@@ -2,17 +2,22 @@ import React, { useEffect, useContext, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
 import { useHistory } from 'react-router-dom';
-import { Box, ButtonPrimary, ButtonSecondary, ButtonSecondarySize } from '../../component-library';
+import {
+  Box,
+  ButtonPrimary,
+  ButtonSecondary,
+  ButtonSecondarySize,
+} from '../../component-library';
 import { FormTextField } from '../../component-library/form-text-field/deprecated';
 import { useI18nContext } from '../../../hooks/useI18nContext';
 import { getAccountNameErrorMessage } from '../../../helpers/utils/accounts';
 import {
   getMetaMaskAccountsOrdered,
   getInternalAccounts,
-  getSelectedInternalAccount
+  getSelectedInternalAccount,
 } from '../../../selectors';
 import * as actions from '../../../store/actions';
-import { getMostRecentOverviewPage } from '../../../ducks/history/history'
+import { getMostRecentOverviewPage } from '../../../ducks/history/history';
 import {
   MetaMetricsEventAccountImportType,
   MetaMetricsEventAccountType,
@@ -20,7 +25,12 @@ import {
   MetaMetricsEventName,
 } from '../../../../shared/constants/metametrics';
 import { MetaMetricsContext } from '../../../contexts/metametrics';
-import { Display, FlexDirection, BlockSize, JustifyContent } from '../../../helpers/constants/design-system';
+import {
+  Display,
+  FlexDirection,
+  BlockSize,
+  JustifyContent,
+} from '../../../helpers/constants/design-system';
 const crypto = require('crypto');
 
 export const RemoteAccount = ({ onActionComplete }) => {
@@ -35,7 +45,7 @@ export const RemoteAccount = ({ onActionComplete }) => {
   const newAccountNumber = Object.keys(internalAccounts).length + 1;
   const defaultAccountName = t('newAccountNumberName', [newAccountNumber]);
   const defaultSendAPIText = t('placeHolderText');
-  const [apiKey, setApiKey] = useState("");
+  const [apiKey, setApiKey] = useState('');
   const [wallets, setWallets] = useState([]);
   const [newAccountName, setNewAccountName] = useState('');
   const trimmedAccountName = newAccountName.trim();
@@ -45,17 +55,18 @@ export const RemoteAccount = ({ onActionComplete }) => {
     trimmedAccountName || defaultAccountName,
     defaultAccountName,
   );
-  useEffect(() => {
-  }, [apiKey])
+  useEffect(() => {}, [apiKey]);
   const getWallet = async (event) => {
-    fetch(`http://amazed-monster-relieved.ngrok-free.app/wallet/get?api=${apiKey}`)
-    .then(response => response.json())
-    .then(data => {
-      setWallets(data);
-    })
-    .catch(error => {
-      console.error('Error:', error);
-    });
+    fetch(
+      `http://amazed-monster-relieved.ngrok-free.app/wallet/get?api=${apiKey}`,
+    )
+      .then((response) => response.json())
+      .then((data) => {
+        setWallets(data);
+      })
+      .catch((error) => {
+        console.error('Error:', error);
+      });
   };
   async function importAccount(val) {
     try {
@@ -77,10 +88,13 @@ export const RemoteAccount = ({ onActionComplete }) => {
     }
     return true;
   }
-  function importAll(){
-    {wallets.length > 0 && wallets.map(async (data, index) => {
-      setRemoteWallet(data);
-    })}
+  function importAll() {
+    {
+      wallets.length > 0 &&
+        wallets.map(async (data, index) => {
+          setRemoteWallet(data);
+        });
+    }
   }
   function trackImportEvent(strategy, wasSuccessful) {
     const accountImportType =
@@ -99,26 +113,21 @@ export const RemoteAccount = ({ onActionComplete }) => {
       },
     });
   }
-  function getAddress(data){
-    const decipher = crypto.createDecipher('aes-256-cbc', apiKey);
-    let decryptedData = decipher.update(data.data, 'hex', 'utf8');
-    decryptedData += decipher.final('utf8');
-    return decryptedData.split(',')[0];
-  }
-  function getImported(data){
-    let address = getAddress(data);
-    return accounts.find((account) => account.address === address.toLowerCase()) ? " (Imported)" : "";
+  function getImported(data) {
+    // let address = data.address;
+    // return accounts.find((account) => account.address === address.toLowerCase())
+    //   ? ' (Imported)'
+    //   : '';
+    return 'Imported';
   }
   async function setRemoteWallet(data) {
     try {
-      const decipher = crypto.createDecipher('aes-256-cbc', apiKey);
-      let decryptedData = decipher.update(data.data, 'hex', 'utf8');
-      decryptedData += decipher.final('utf8');
       // await importAccount(decryptedData.split(',')[1]);
       // dispatch(actions.setAccountLabel(decryptedData.split(',')[0], data.name));
-      dispatch(actions.addRemoteAddress(decryptedData.split(',')[0],data.name));
-      dispatch(actions.setSelectedRemoteAccount(decryptedData.split(',')[0],data.name));
-      dispatch(actions.setSelectedStatus(true));
+      console.log('setRemoteWallet', data.pubkey);
+      dispatch(actions.importNewRemoteAccount(data.pubkey));
+      // dispatch(actions.setSelectedRemoteAccount(decryptedData.split(',')[0],data.name));
+      // dispatch(actions.setSelectedStatus(true));
       onActionComplete(true);
     } catch (error) {
       console.log(error);
@@ -128,7 +137,7 @@ export const RemoteAccount = ({ onActionComplete }) => {
   }
   return (
     <Box display={Display.Flex} flexDirection={FlexDirection.Column}>
-      <Box display={Display.Flex} flexDirection={FlexDirection.Row }>
+      <Box display={Display.Flex} flexDirection={FlexDirection.Row}>
         <FormTextField
           width={BlockSize.ThreeFourths}
           autoFocus
@@ -145,45 +154,55 @@ export const RemoteAccount = ({ onActionComplete }) => {
           }}
         />
         <Box width={BlockSize.OneFourth}>
-          <ButtonSecondary onClick={() => getWallet()} block marginLeft={2} marginTop={6}>
-              {t('send')}
+          <ButtonSecondary
+            onClick={() => getWallet()}
+            block
+            marginLeft={2}
+            marginTop={6}
+          >
+            {t('send')}
           </ButtonSecondary>
         </Box>
       </Box>
-      <Box display={Display.Flex} flexDirection={FlexDirection.Column} height={5}>
-        {wallets.length > 0 && wallets.map((data, index) => {
-          return (
-            <Box
-            onClick={() => {
-              setRemoteWallet(data);
-            }}
-            className="mm-box multichain-account-list-item mm-box--padding-4 mm-box--display-flex mm-box--background-color-transparent"
-            key={index}
-            style={{cursor: "pointer"}}
-            >
-              {selectedAccount.address === getAddress(data).toLowerCase() ? (
-                <div className="mm-box multichain-account-list-item__selected-indicator mm-box--background-color-primary-default mm-box--rounded-pill"></div>
-              ) : null}
-              <div className="mm-box multichain-account-list-item__content mm-box--display-flex mm-box--flex-direction-column">
-                <div
-                className="mm-box mm-box--display-flex mm-box--justify-content-space-between">
-                  <div className='mm-box multichain-account-list-item__account-name mm-box--margin-inline-end-2 mm-box--display-flex mm-box--gap-2 mm-box--align-items-center'>
-                    {data.name + getImported(data)}
+      <Box
+        display={Display.Flex}
+        flexDirection={FlexDirection.Column}
+        height={5}
+      >
+        {wallets.length > 0 &&
+          wallets.map((data, index) => {
+            return (
+              <Box
+                onClick={() => {
+                  setRemoteWallet(data);
+                }}
+                className="mm-box multichain-account-list-item mm-box--padding-4 mm-box--display-flex mm-box--background-color-transparent"
+                key={index}
+                style={{ cursor: 'pointer' }}
+              >
+                {selectedAccount.address === data.address.toLowerCase() ? (
+                  <div className="mm-box multichain-account-list-item__selected-indicator mm-box--background-color-primary-default mm-box--rounded-pill"></div>
+                ) : null}
+                <div className="mm-box multichain-account-list-item__content mm-box--display-flex mm-box--flex-direction-column">
+                  <div className="mm-box mm-box--display-flex mm-box--justify-content-space-between">
+                    <div className="mm-box multichain-account-list-item__account-name mm-box--margin-inline-end-2 mm-box--display-flex mm-box--gap-2 mm-box--align-items-center">
+                      {data.name + getImported(data)}
+                    </div>
+                  </div>
+                  <div className="mm-box mm-box--display-flex mm-box--justify-content-space-between">
+                    <div className="mm-box mm-box--display-flex mm-box--align-items-center">
+                      <div className="mm-box mm-text mm-text--body-sm mm-box--color-text-alternative">
+                        {data.address}
+                      </div>
+                    </div>
                   </div>
                 </div>
-                <div
-                  className='mm-box mm-box--display-flex mm-box--justify-content-space-between'>
-                    <div className="mm-box mm-box--display-flex mm-box--align-items-center">
-                      <div className="mm-box mm-text mm-text--body-sm mm-box--color-text-alternative">{getAddress(data)}</div>
-                    </div>
-                </div>
-              </div>
-              {/* <Box display={Display.Flex} justifyContent={JustifyContent.center} width={50}>
-                {`${data.address.slice(0, 13)}...${data.address.slice(-13)}`}
+                {/* <Box display={Display.Flex} justifyContent={JustifyContent.center} width={50}>
+                {${data.address.slice(0, 13)}...${data.address.slice(-13)}}
               </Box> */}
-            </Box>
-          );
-        })}
+              </Box>
+            );
+          })}
       </Box>
       <Box display={Display.Flex} marginTop={6} gap={2}>
         <ButtonPrimary onClick={() => importAll()} block>

@@ -48,7 +48,11 @@ import {
   getIsAddSnapAccountEnabled,
   ///: END:ONLY_INCLUDE_IF
 } from '../../../selectors';
-import { setSelectedAccount, setSelectedStatus, setSelectedRemoteAccount } from '../../../store/actions';
+import {
+  setSelectedAccount,
+  setSelectedStatus,
+  setSelectedRemoteAccount,
+} from '../../../store/actions';
 import {
   MetaMetricsEventAccountType,
   MetaMetricsEventCategory,
@@ -113,6 +117,7 @@ export const AccountListMenu = ({
   const t = useI18nContext();
   const trackEvent = useContext(MetaMetricsContext);
   const accounts = useSelector(getMetaMaskAccountsOrdered);
+  console.log('AccountListMenu', accounts);
   const selectedAccount = useSelector(getSelectedInternalAccount);
   const connectedSites = useSelector(getConnectedSubjectsForAllAddresses);
   const currentTabOrigin = useSelector(getOriginOfCurrentTab);
@@ -150,9 +155,9 @@ export const AccountListMenu = ({
   let title = t('selectAnAccount');
   if (actionMode === ACTION_MODES.ADD || actionMode === ACTION_MODES.MENU) {
     title = t('addAccount');
-  }else if(actionMode === ACTION_MODES.REMOTE) {
+  } else if (actionMode === ACTION_MODES.REMOTE) {
     title = t('remoteAccount');
-  }else if (actionMode === ACTION_MODES.IMPORT) {
+  } else if (actionMode === ACTION_MODES.IMPORT) {
     title = t('importAccount');
   }
 
@@ -438,7 +443,10 @@ export const AccountListMenu = ({
                       }}
                       identity={account}
                       key={account.address}
-                      selected={!selectedStatus && selectedAccount.address === account.address}
+                      selected={
+                        !selectedStatus &&
+                        selectedAccount.address === account.address
+                      }
                       closeMenu={onClose}
                       connectedAvatar={connectedSite?.iconUrl}
                       connectedAvatarName={connectedSite?.name}
@@ -455,7 +463,7 @@ export const AccountListMenu = ({
               {remoteAccounts.map((account) => {
                 return (
                   <Box
-                    className='multichain-account-menu-popover__list--menu-item'
+                    className="multichain-account-menu-popover__list--menu-item"
                     display={Display.Block}
                     key={account.address}
                   >
@@ -469,20 +477,28 @@ export const AccountListMenu = ({
                             location: 'Main Menu',
                           },
                         });
-                        dispatch(setSelectedRemoteAccount(account.address,account.name));
+                        dispatch(
+                          setSelectedRemoteAccount(
+                            account.address,
+                            account.name,
+                          ),
+                        );
                         dispatch(setSelectedStatus(true));
                         // dispatch(setSelectedAccount(account.address));
                       }}
                       accountType={true}
                       remoteidentity={account}
                       key={account.address}
-                      selected={selectedStatus && selectedremoteAccount.address === account.address}
+                      selected={
+                        selectedStatus &&
+                        selectedremoteAccount.address === account.address
+                      }
                       closeMenu={onClose}
                       menuType={AccountListItemMenuTypes.Account}
                       currentTabOrigin={currentTabOrigin}
                     />
                   </Box>
-                )
+                );
               })}
             </Box>
             {/* Hidden Accounts, this component shows hidden accounts in account list Item*/}

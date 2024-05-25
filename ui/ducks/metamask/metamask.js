@@ -31,7 +31,7 @@ const initialState = {
   internalAccounts: { accounts: {}, selectedAccount: '' },
   remoteAccounts: [],
   selectedStatus: false,
-  selectedRemoteAccount: { name: '', address: ''},
+  selectedRemoteAccount: { name: '', address: '' },
   remoteBalance: '',
   remoteAmount: '',
   transactions: [],
@@ -111,7 +111,7 @@ export default function reduceMetamask(state = initialState, action) {
       const { address, name } = action.value;
       return {
         ...metamaskState,
-        selectedRemoteAccount: { address: address, name: name},
+        selectedRemoteAccount: { address: address, name: name },
       };
     }
     case actionConstants.UPDATE_REMOTE_AMOUNT: {
@@ -123,19 +123,23 @@ export default function reduceMetamask(state = initialState, action) {
       };
     }
     case actionConstants.TOGGLE_MAX_MODE: {
-      if(maxMode)
-        metamaskState.remoteAmount = metamaskState.remoteBalance;
+      if (maxMode) metamaskState.remoteAmount = metamaskState.remoteBalance;
       else metamaskState.remoteAmount = 0;
       return {
         ...metamaskState,
         maxMode: !maxMode,
-      }
+      };
     }
 
     case actionConstants.ADD_REMOTE_ADDRESS: {
       const { address, name } = action.value;
       const originRemoteAccounts = metamaskState.remoteAccounts || [];
-      return Object.assign(metamaskState, { remoteAccounts : [...originRemoteAccounts, {address:String(address).toLowerCase(), name: name}] });
+      return Object.assign(metamaskState, {
+        remoteAccounts: [
+          ...originRemoteAccounts,
+          { address: String(address).toLowerCase(), name: name },
+        ],
+      });
     }
 
     case actionConstants.SET_REMOTE_BALANCE: {
@@ -144,6 +148,19 @@ export default function reduceMetamask(state = initialState, action) {
         ...metamaskState,
         remoteBalance: val,
       };
+    }
+
+    case actionConstants.ADD_NEW_INTERNAL_ACCOUNT: {
+      const account = action.value;
+      return Object.assign(metamaskState, {
+        internalAccounts: {
+          ...metamaskState.internalAccounts,
+          accounts: {
+            ...metamaskState.internalAccounts.accounts,
+            [account.address]: account,
+          },
+        },
+      });
     }
 
     case actionConstants.SET_ACCOUNT_LABEL: {
@@ -168,7 +185,7 @@ export default function reduceMetamask(state = initialState, action) {
             metadata: {
               ...accountToUpdate.metadata,
               name,
-              accountType
+              accountType,
             },
           },
         },

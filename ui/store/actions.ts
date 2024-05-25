@@ -446,6 +446,36 @@ export function importNewAccount(
   };
 }
 
+export function importNewRemoteAccount(
+  publicKey: string,
+  loadingMessage: ReactFragment,
+): ThunkAction<
+  Promise<MetaMaskReduxState['metamask']>,
+  MetaMaskReduxState,
+  unknown,
+  AnyAction
+> {
+  return async (dispatch: MetaMaskReduxDispatch) => {
+    let newState;
+
+    dispatch(showLoadingIndication(loadingMessage));
+
+    try {
+      log.debug(`background.importAccountWithStrategy`);
+      await submitRequestToBackground('importRemoteAccount', [publicKey]);
+      log.debug(`background.getState`);
+      newState = await submitRequestToBackground<
+        MetaMaskReduxState['metamask']
+      >('getState');
+    } finally {
+      dispatch(hideLoadingIndication());
+    }
+
+    dispatch(updateMetamaskState(newState));
+    return newState;
+  };
+}
+
 export function addNewAccount(): ThunkAction<
   void,
   MetaMaskReduxState,
@@ -471,6 +501,18 @@ export function addNewAccount(): ThunkAction<
 
     await forceUpdateMetamaskState(dispatch);
     return addedAccountAddress;
+  };
+}
+
+export function addNewInternalAccount(
+  newAccount,
+): ThunkAction<void, MetaMaskReduxState, unknown, AnyAction> {
+  return (dispatch: MetaMaskReduxDispatch) => {
+    const res = dispatch({
+      type: actionConstants.ADD_NEW_INTERNAL_ACCOUNT,
+      value: { ...newAccount },
+    });
+    console.log('res', res);
   };
 }
 
@@ -569,6 +611,8 @@ export function connectHardware(
         'connectHardware',
         [deviceName, page, hdPath],
       );
+
+      console.log('connectHardware', accounts, deviceName, page, hdPath);
     } catch (error) {
       logErrorWithMessage(error);
       if (
@@ -2865,7 +2909,7 @@ export function setAccountLabel(
           return;
         }
 
-        console.log('log from actions: ', {account, label, accountType})
+        console.log('log from actions: ', { account, label, accountType });
 
         dispatch({
           type: actionConstants.SET_ACCOUNT_LABEL,
@@ -2883,67 +2927,67 @@ export function addRemoteAddress(
 ): ThunkAction<Promise<string>, MetaMaskReduxState, unknown, AnyAction> {
   return (dispatch: MetaMaskReduxDispatch) => {
     return new Promise((resolve, reject) => {
-        dispatch({
-          type: actionConstants.ADD_REMOTE_ADDRESS,
-          value: { address, name},
-        });
-        resolve(true);
+      dispatch({
+        type: actionConstants.ADD_REMOTE_ADDRESS,
+        value: { address, name },
+      });
+      resolve(true);
     });
   };
 }
 
 export function setSelectedStatus(
-  value: bool
-): ThunkAction<Promise<string>, MetaMaskReduxState, unknown, AnyAction>{
+  value: bool,
+): ThunkAction<Promise<string>, MetaMaskReduxState, unknown, AnyAction> {
   return (dispatch: MetaMaskReduxDispatch) => {
     return new Promise((resolve, reject) => {
-        dispatch({
-          type: actionConstants.SET_SELECTED_STATUS,
-          value: { value },
-        });
-        resolve(true);
+      dispatch({
+        type: actionConstants.SET_SELECTED_STATUS,
+        value: { value },
+      });
+      resolve(true);
     });
   };
 }
 
 export function setSelectedRemoteAccount(
   address: string,
-  name: string
-): ThunkAction<Promise<string>, MetaMaskReduxState, unknown, AnyAction>{
+  name: string,
+): ThunkAction<Promise<string>, MetaMaskReduxState, unknown, AnyAction> {
   return (dispatch: MetaMaskReduxDispatch) => {
     return new Promise((resolve, reject) => {
-        dispatch({
-          type: actionConstants.SET_SELECTED_REMOTEACCOUNT,
-          value: { address, name },
-        });
-        resolve(true);
+      dispatch({
+        type: actionConstants.SET_SELECTED_REMOTEACCOUNT,
+        value: { address, name },
+      });
+      resolve(true);
     });
   };
 }
 
 export function setRemoteBalance(
-  value: string
-): ThunkAction<Promise<string>, MetaMaskReduxState, unknown, AnyAction>{
-    return (dispatch: MetaMaskReduxDispatch) => {
-      return new Promise((resolve, reject) => {
-          const web3Provider = new Web3Provider(global.ethereumProvider);
-          web3Provider.getBalance(value).then(balance => {
-            let val = balance._hex;
-            dispatch({
-              type: actionConstants.SET_REMOTE_BALANCE,
-              value: { val },
-            });
-            resolve(val);
-          });
-      }).catch(error => {
+  value: string,
+): ThunkAction<Promise<string>, MetaMaskReduxState, unknown, AnyAction> {
+  return (dispatch: MetaMaskReduxDispatch) => {
+    return new Promise((resolve, reject) => {
+      const web3Provider = new Web3Provider(global.ethereumProvider);
+      web3Provider.getBalance(value).then((balance) => {
+        let val = balance._hex;
+        dispatch({
+          type: actionConstants.SET_REMOTE_BALANCE,
+          value: { val },
+        });
+        resolve(val);
+      });
+    }).catch((error) => {
       console.error('Error:', error);
-    })
-  }
+    });
+  };
 }
 
 export function updateRemoteAmount(
-  value: string
-):ThunkAction<Promise<string>, MetaMaskReduxState, unknown, AnyAction>{
+  value: string,
+): ThunkAction<Promise<string>, MetaMaskReduxState, unknown, AnyAction> {
   return (dispatch: MetaMaskReduxDispatch) => {
     return new Promise((resolve, reject) => {
       dispatch({
@@ -2954,11 +2998,16 @@ export function updateRemoteAmount(
     });
   };
 }
-export function toggleMaxMode():ThunkAction<Promise<string>, MetaMaskReduxState, unknown, AnyAction>{
+export function toggleMaxMode(): ThunkAction<
+  Promise<string>,
+  MetaMaskReduxState,
+  unknown,
+  AnyAction
+> {
   return (dispatch: MetaMaskReduxDispatch) => {
     return new Promise((resolve, reject) => {
       dispatch({
-        type: actionConstants.TOGGLE_MAX_MODE
+        type: actionConstants.TOGGLE_MAX_MODE,
       });
       resolve(true);
     });

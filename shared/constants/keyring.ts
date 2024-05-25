@@ -5,7 +5,7 @@ import { HardwareKeyringType } from './hardware-wallets';
  */
 export enum InternalKeyringType {
   hdKeyTree = 'HD Key Tree',
-  imported = 'Simple Key Pair'
+  imported = 'Simple Key Pair',
 }
 
 ///: BEGIN:ONLY_INCLUDE_IF(keyring-snaps)
@@ -13,6 +13,10 @@ export enum SnapKeyringType {
   snap = 'Snap Keyring',
 }
 ///: END:ONLY_INCLUDE_IF
+
+export enum RemoteKeyringType {
+  remote = 'Remote',
+}
 
 /**
  * All keyrings supported by MetaMask.
@@ -22,5 +26,6 @@ export const KeyringType = {
   ...InternalKeyringType,
   ///: BEGIN:ONLY_INCLUDE_IF(keyring-snaps)
   ...SnapKeyringType,
+  ...RemoteKeyringType,
   ///: END:ONLY_INCLUDE_IF
 };

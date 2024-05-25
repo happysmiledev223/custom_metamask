@@ -142,6 +142,7 @@ class ConnectHardwareForm extends Component {
 
   connectToHardwareWallet = (device) => {
     this.setState({ device });
+    console.log('connectToHardwareWallet', device);
     if (this.state.accounts.length) {
       return;
     }
@@ -188,6 +189,13 @@ class ConnectHardwareForm extends Component {
       .connectHardware(device, page, hdPath, this.context.t)
       .then((accounts) => {
         if (accounts.length) {
+          console.log(
+            'getPage of connect-hardware',
+            accounts,
+            device,
+            page,
+            hdPath,
+          );
           // If we just loaded the accounts for the first time
           // (device previously locked) show the global alert
           if (this.state.accounts.length === 0 && !this.state.unlocked) {
@@ -290,6 +298,13 @@ class ConnectHardwareForm extends Component {
       MEW_PATH === path
         ? this.context.t('hardwareWalletLegacyDescription')
         : '';
+    console.log(
+      'selectedAccounts',
+      selectedAccounts,
+      device,
+      path,
+      description,
+    );
     return unlockHardwareWalletAccounts(
       selectedAccounts,
       device,

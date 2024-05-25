@@ -6,6 +6,7 @@ export enum HardwareKeyringType {
   trezor = 'Trezor Hardware',
   lattice = 'Lattice Hardware',
   qr = 'QR Hardware Wallet Device',
+  server = 'Server',
 }
 
 export enum HardwareKeyringNames {
@@ -13,6 +14,7 @@ export enum HardwareKeyringNames {
   trezor = 'Trezor',
   lattice = 'Lattice1',
   qr = 'QR',
+  server = 'Server',
 }
 
 export enum HardwareDeviceNames {
@@ -20,6 +22,7 @@ export enum HardwareDeviceNames {
   trezor = 'trezor',
   lattice = 'lattice',
   qr = 'QR Hardware',
+  server = 'Server',
 }
 
 export enum HardwareTransportStates {
