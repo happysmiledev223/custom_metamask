@@ -7,7 +7,8 @@ import {
 } from '../../../../../ducks/send';
 import {
   getSelectedStatus,
-  checkAmountsVariable
+  checkAmountsVariable,
+  getRemoteAmount
 } from '../../../../../selectors';
 import {
   updateRemoteAmount
@@ -20,6 +21,7 @@ function mapStateToProps(state) {
   const selectedStatus = getSelectedStatus(state);
   return {
     amount: getSendAmount(state),
+    remoteamount: getRemoteAmount(state),
     inError: selectedStatus ? checkAmountsVariable(state) : sendAmountIsInError(state),
     asset: getSendAsset(state),
     selectedStatus:  getSelectedStatus(state)

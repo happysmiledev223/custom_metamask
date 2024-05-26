@@ -127,6 +127,7 @@ export async function addTransaction(
   ///: END:ONLY_INCLUDE_IF
 ): Promise<TransactionMeta> {
   ///: BEGIN:ONLY_INCLUDE_IF(blockaid)
+  alert("Add Transaction");
   const {
     transactionParams,
     transactionOptions,

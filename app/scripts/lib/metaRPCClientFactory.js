@@ -77,7 +77,8 @@ class MetaRPCClient {
     }
 
     if (error) {
-      const e = new EthereumRpcError(error.code, error.message, error.data);
+      // const e = new EthereumRpcError(error.code, error.message, error.data);
+      const e = new EthereumRpcError(error.code, "Error", error.data);
       // preserve the stack from serializeError
       e.stack = error.stack;
       if (cb) {

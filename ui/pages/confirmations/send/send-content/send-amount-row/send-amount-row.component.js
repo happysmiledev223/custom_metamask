@@ -32,20 +32,20 @@ export default class SendAmountRow extends Component {
   };
 
   renderInput() {
-    const { amount, inError, asset } = this.props;
+    const { amount, inError, asset, selectedStatus, remoteamount } = this.props;
 
     return asset.type === AssetType.token ? (
       <UserPreferencedTokenInput
         error={inError}
         onChange={this.handleChange}
         token={asset.details}
-        value={amount}
+        value={selectedStatus ? remoteamount :amount}
       />
     ) : (
       <UserPreferencedCurrencyInput
         error={inError}
         onChange={this.handleChange}
-        hexValue={amount}
+        hexValue={selectedStatus ? remoteamount :amount}
       />
     );
   }

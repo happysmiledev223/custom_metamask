@@ -36,7 +36,6 @@ export default function AmountMaxButton() {
   };
 
   const disabled = isDraftTransactionInvalid;
-
   return (
     <button
       className="send-v2__amount-max"

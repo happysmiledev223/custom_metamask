@@ -2306,6 +2306,9 @@ export function getRemoteAmountErrors(state){
     amount:"insufficientFundsForGas",
   }
 }
+export function getRemoteAmount(state){
+  return state.metamask.remoteAmount;
+}
 export function getRemoteSendAsset(state){
   const remoteAccount = state.metamask.selectedRemoteAccount;
   const asset = {

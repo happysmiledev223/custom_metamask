@@ -108,12 +108,14 @@ class ConnectHardwareForm extends Component {
 
   UNSAFE_componentWillReceiveProps(nextProps) {
     const { accounts } = nextProps;
+    console.log(accounts);
     const newAccounts = this.state.accounts.map((a) => {
       const normalizedAddress = a.address.toLowerCase();
       const balanceValue = accounts[normalizedAddress]?.balance || null;
       a.balance = balanceValue ? formatBalance(balanceValue, 6) : '...';
       return a;
     });
+    console.log(newAccounts);
     this.setState({ accounts: newAccounts });
   }
 

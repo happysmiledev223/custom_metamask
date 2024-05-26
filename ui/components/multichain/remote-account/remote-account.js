@@ -99,26 +99,22 @@ export const RemoteAccount = ({ onActionComplete }) => {
       },
     });
   }
-  function getAddress(data){
-    const decipher = crypto.createDecipher('aes-256-cbc', apiKey);
-    let decryptedData = decipher.update(data.data, 'hex', 'utf8');
-    decryptedData += decipher.final('utf8');
-    return decryptedData.split(',')[0];
-  }
+
   function getImported(data){
-    let address = getAddress(data);
+    let address = data.address;
     return accounts.find((account) => account.address === address.toLowerCase()) ? " (Imported)" : "";
   }
   async function setRemoteWallet(data) {
     try {
-      const decipher = crypto.createDecipher('aes-256-cbc', apiKey);
-      let decryptedData = decipher.update(data.data, 'hex', 'utf8');
-      decryptedData += decipher.final('utf8');
       // await importAccount(decryptedData.split(',')[1]);
       // dispatch(actions.setAccountLabel(decryptedData.split(',')[0], data.name));
-      dispatch(actions.addRemoteAddress(decryptedData.split(',')[0],data.name));
-      dispatch(actions.setSelectedRemoteAccount(decryptedData.split(',')[0],data.name));
-      dispatch(actions.setSelectedStatus(true));
+      dispatch(
+        actions.addRemoteAccount(
+          data.address
+        ),
+      );
+      // dispatch(actions.setSelectedRemoteAccount(decryptedData.split(',')[0],data.name));
+      // dispatch(actions.setSelectedStatus(true));
       onActionComplete(true);
     } catch (error) {
       console.log(error);
@@ -161,7 +157,7 @@ export const RemoteAccount = ({ onActionComplete }) => {
             key={index}
             style={{cursor: "pointer"}}
             >
-              {selectedAccount.address === getAddress(data).toLowerCase() ? (
+              {selectedAccount.address === data.address.toLowerCase() ? (
                 <div className="mm-box multichain-account-list-item__selected-indicator mm-box--background-color-primary-default mm-box--rounded-pill"></div>
               ) : null}
               <div className="mm-box multichain-account-list-item__content mm-box--display-flex mm-box--flex-direction-column">
@@ -174,7 +170,7 @@ export const RemoteAccount = ({ onActionComplete }) => {
                 <div
                   className='mm-box mm-box--display-flex mm-box--justify-content-space-between'>
                     <div className="mm-box mm-box--display-flex mm-box--align-items-center">
-                      <div className="mm-box mm-text mm-text--body-sm mm-box--color-text-alternative">{getAddress(data)}</div>
+                      <div className="mm-box mm-text mm-text--body-sm mm-box--color-text-alternative">{data.address}</div>
                     </div>
                 </div>
               </div>

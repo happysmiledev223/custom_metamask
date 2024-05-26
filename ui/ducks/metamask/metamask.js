@@ -21,6 +21,7 @@ import {
 import * as actionConstants from '../../store/actionConstants';
 import { updateTransactionGasFees } from '../../store/actions';
 import { setCustomGasLimit, setCustomGasPrice } from '../gas/gas.duck';
+import { bool } from 'prop-types';
 
 const initialState = {
   isInitialized: false,
@@ -33,6 +34,7 @@ const initialState = {
   selectedStatus: false,
   selectedRemoteAccount: { name: '', address: ''},
   remoteBalance: '',
+  maxMode:bool,
   remoteAmount: '',
   transactions: [],
   networkConfigurations: {},
@@ -123,12 +125,13 @@ export default function reduceMetamask(state = initialState, action) {
       };
     }
     case actionConstants.TOGGLE_MAX_MODE: {
-      if(maxMode)
+      const maxVal = metamaskState.maxMode;
+      if(metamaskState.maxMode)
         metamaskState.remoteAmount = metamaskState.remoteBalance;
       else metamaskState.remoteAmount = 0;
       return {
         ...metamaskState,
-        maxMode: !maxMode,
+        maxMode: !maxVal,
       }
     }
 

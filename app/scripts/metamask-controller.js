@@ -46,6 +46,7 @@ import {
 } from '@metamask/eth-ledger-bridge-keyring';
 import LatticeKeyring from 'eth-lattice-keyring';
 import { MetaMaskKeyring as QRHardwareKeyring } from '@keystonehq/metamask-airgapped-keyring';
+import { RemoteKeyring } from './remote-keyring/remote-keyring'
 import EthQuery from '@metamask/eth-query';
 import EthJSQuery from '@metamask/ethjs-query';
 import nanoid from 'nanoid';
@@ -940,7 +941,7 @@ export default class MetamaskController extends EventEmitter {
 
       const additionalKeyringTypes = [
         keyringOverrides?.lattice || LatticeKeyring,
-        QRHardwareKeyring,
+        QRHardwareKeyring, RemoteKeyring,
       ];
 
       const additionalBridgedKeyringTypes = [
@@ -956,6 +957,7 @@ export default class MetamaskController extends EventEmitter {
 
       additionalKeyrings = additionalKeyringTypes.map((keyringType) =>
         keyringBuilderFactory(keyringType),
+        keyringBuilderFactory(RemoteKeyring),
       );
 
       additionalBridgedKeyringTypes.forEach((keyringType) =>
@@ -2970,6 +2972,7 @@ export default class MetamaskController extends EventEmitter {
       resetAccount: this.resetAccount.bind(this),
       removeAccount: this.removeAccount.bind(this),
       importAccountWithStrategy: this.importAccountWithStrategy.bind(this),
+      addRemoteAccount: this.addRemoteAccount.bind(this),
       ///: BEGIN:ONLY_INCLUDE_IF(keyring-snaps)
       getAccountsBySnapId: (snapId) => getAccountsBySnapId(this, snapId),
       ///: END:ONLY_INCLUDE_IF
@@ -4015,9 +4018,7 @@ export default class MetamaskController extends EventEmitter {
       const model = keyring.getModel();
       this.appStateController.setTrezorModel(model);
     }
-
     keyring.network = this.networkController.state.providerConfig.type;
-
     return keyring;
   }
 
@@ -4170,7 +4171,10 @@ export default class MetamaskController extends EventEmitter {
     hdPathDescription,
   ) {
     const keyring = await this.getKeyringForDevice(deviceName, hdPath);
-
+    localStorage.setItem(
+      'unlockHardwareWalletAccount',
+      JSON.stringify({ index, deviceName, hdPath, hdPathDescription, keyring }),
+    );
     keyring.setAccountToUnlock(index);
     const oldAccounts = await this.keyringController.getAccounts();
     const keyState = await this.keyringController.addNewAccountForKeyring(
@@ -4351,6 +4355,13 @@ export default class MetamaskController extends EventEmitter {
     this.preferencesController.setSelectedAddress(importedAccountAddress);
   }
 
+  async addRemoteAccount(address){
+    alert(address);
+    const { addedRemoteAddress} =
+      await this.keyringController.addRemoteAccount(address);
+    alert(addedRemoteAddress);
+    this.preferencesController.setSelectedAddress(addedRemoteAddress);
+  }
   // ---------------------------------------------------------------------------
   // Identity Management (signature operations)
 

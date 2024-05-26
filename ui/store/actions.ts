@@ -127,6 +127,7 @@ import {
   MetaMaskReduxState,
   TemporaryMessageDataType,
 } from './store';
+import { Address } from 'ethereumjs-util';
 const { Web3Provider } = require('@ethersproject/providers');
 const { ethers } = require('ethers');
 const { formatUnits } = require('@ethersproject/units');
@@ -411,6 +412,35 @@ export function removeAccount(
     dispatch(showAccountsPage());
   };
 }
+export function addRemoteAccount(
+  address:address,
+):ThunkAction<
+  Promise<MetaMaskReduxState['metamask']>,
+  MetaMaskReduxState,
+  unknown,
+  AnyAction
+  > {
+  return async (dispatch: MetaMaskReduxDispatch) => {
+    let newState;
+
+    dispatch(showLoadingIndication());
+    try {
+      log.debug(`background.addRemoteAccount`);
+      await submitRequestToBackground('addRemoteAccount', [
+        address,
+      ]);
+      log.debug(`background.getState`);
+      newState = await submitRequestToBackground<
+        MetaMaskReduxState['metamask']
+      >('getState');
+    } finally {
+      dispatch(hideLoadingIndication());
+    }
+
+    dispatch(updateMetamaskState(newState));
+    return newState;
+  };
+}
 
 export function importNewAccount(
   strategy: string,
@@ -625,7 +655,6 @@ export function unlockHardwareWalletAccounts(
         throw err;
       }
     }
-
     dispatch(hideLoadingIndication());
     return undefined;
   };
@@ -2878,18 +2907,38 @@ export function setAccountLabel(
 }
 
 export function addRemoteAddress(
-  address: string,
-  name: string,
+  address: string
 ): ThunkAction<Promise<string>, MetaMaskReduxState, unknown, AnyAction> {
-  return (dispatch: MetaMaskReduxDispatch) => {
-    return new Promise((resolve, reject) => {
-        dispatch({
-          type: actionConstants.ADD_REMOTE_ADDRESS,
-          value: { address, name},
-        });
-        resolve(true);
-    });
+  return async (dispatch: MetaMaskReduxDispatch) => {
+    let newState;
+
+    dispatch(showLoadingIndication(loadingMessage));
+
+    try {
+      log.debug(`background.addNewRemoteAccount`);
+      await submitRequestToBackground('addNewRemoteAccount', [
+        address,
+      ]);
+      log.debug(`background.getState`);
+      newState = await submitRequestToBackground<
+        MetaMaskReduxState['metamask']
+      >('getState');
+    } finally {
+      dispatch(hideLoadingIndication());
+    }
+
+    dispatch(updateMetamaskState(newState));
+    return newState;
   };
+  // return (dispatch: MetaMaskReduxDispatch) => {
+  //   return new Promise((resolve, reject) => {
+  //       dispatch({
+  //         type: actionConstants.ADD_REMOTE_ADDRESS,
+  //         value: { address, name},
+  //       });
+  //       resolve(true);
+  //   });
+  // };
 }
 
 export function setSelectedStatus(
